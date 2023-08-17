@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from kiwipiepy import Kiwi
 from krwordrank.sentence import summarize_with_sentences
 from pydantic import BaseModel
+import uvicorn
 
 import body_request
 import markdown_to_text
@@ -49,13 +50,6 @@ async def keyword(bodyRequest: body_request.BodyRequest):
         num_keysents=10,
         verbose=False
     )
-
-    # for word, r in sorted(keywords.items(), key=lambda x: x[1], reverse=True)[:10]:
-    #     print('%8s:\t%.4f' % (word, r))
-    #
-    #
-    #
-    # return "hello fast api!"
 
     sorted_keywords = [
         {"keyword": word, "score": r}
