@@ -1,8 +1,7 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from kiwipiepy import Kiwi
 from krwordrank.sentence import summarize_with_sentences
 from pydantic import BaseModel
-import uvicorn
 
 import body_request
 import markdown_to_text
@@ -18,11 +17,6 @@ app = FastAPI()
 @app.get("/")
 async def root():
     return {"message": "Hello World"}
-
-
-@app.get("/hello/{name}")
-async def say_hello(name: str):
-    return {"message": f"Hello {name}"}
 
 
 @app.post("/keyword")
@@ -41,15 +35,20 @@ async def keyword(bodyRequest: body_request.BodyRequest):
         print(newString)
         preprocessingResult.append(newString)
 
-    keywords, _ = summarize_with_sentences(
-        preprocessingResult,
-        penalty=None,
-        stopwords=None,
-        diversity=0.5,
-        num_keywords=100,
-        num_keysents=10,
-        verbose=False
-    )
+    try:
+        keywords, _ = summarize_with_sentences(
+            preprocessingResult,
+            penalty=None,
+            stopwords=None,
+            diversity=0.5,
+            num_keywords=100,
+            num_keysents=10,
+            verbose=False
+        )
+    except ValueError as e:
+        # 분석을 할 수 없는 경우 value error 전송
+        print("An error occurred:", e)
+        return 'value error'
 
     sorted_keywords = [
         {"keyword": word, "score": r}
